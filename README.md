@@ -6,6 +6,8 @@ https://drive.google.com/file/d/1YD9u7jbeZpXyPR3MDGrZ70ZrE2SWI--4/view?usp=shari
 
 # ![email](https://github.com/user-attachments/assets/6ae4421a-d341-4a32-8fee-83ab1c0ce50f)
 
+# ![sheet](https://github.com/user-attachments/assets/3abfae1e-399b-49de-84a7-30d34ee0ae54)
+
 # Gmail AI Labeling with n8n
 
 This repository contains an `n8n` workflow that automatically creates Gmail labels and classifies incoming emails using AI.
@@ -24,6 +26,5 @@ This repository contains an `n8n` workflow that automatically creates Gmail labe
 3. Add your OpenAI (or other AI provider) API key.
 4. Run the workflow and enjoy auto-labeling!
 
-## 📝 License
-
-MIT License
+## My YouTube Channel
+https://www.youtube.com/@AgentZee-v2l/featured
