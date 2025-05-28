@@ -1,2 +1,21 @@
-# Gmail-ai-labeling-n8n-workflow
-N8N workflow for Gmail label creation and AI-based email classification.
+# Gmail AI Labeling with n8n
+
+This repository contains an `n8n` workflow that automatically creates Gmail labels and classifies incoming emails using AI.
+
+## 🔧 Features
+
+- Connects with Gmail via OAuth2
+- Uses AI (OpenAI or similar) to classify emails
+- Creates Gmail labels based on email content
+- Applies the correct label to each email
+
+## 🚀 How to Use
+
+1. Import the `workflow/gmail_label_ai_workflow.json` file into your `n8n` instance.
+2. Set up your Gmail credentials.
+3. Add your OpenAI (or other AI provider) API key.
+4. Run the workflow and enjoy auto-labeling!
+
+## 📝 License
+
+MIT License
