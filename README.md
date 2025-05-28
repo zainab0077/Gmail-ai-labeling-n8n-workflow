@@ -4,6 +4,8 @@ https://drive.google.com/file/d/1YD9u7jbeZpXyPR3MDGrZ70ZrE2SWI--4/view?usp=shari
 
 # ![n8n Agent](https://github.com/user-attachments/assets/8dd77770-1fa9-4485-867a-ff94a2d2441d)
 
+# ![email](https://github.com/user-attachments/assets/6ae4421a-d341-4a32-8fee-83ab1c0ce50f)
+
 # Gmail AI Labeling with n8n
 
 This repository contains an `n8n` workflow that automatically creates Gmail labels and classifies incoming emails using AI.
