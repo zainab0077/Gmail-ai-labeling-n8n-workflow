@@ -1,1 +1,768 @@
-
+{
+  "name": "Smart-Gmail-AI-Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2140,
+        -560
+      ],
+      "id": "290531e7-ae74-4188-a2d2-0f48ffe1807a",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2660,
+        -140
+      ],
+      "id": "3ac386fe-caf3-45bc-b577-a748583a65ea",
+      "name": "Wait",
+      "webhookId": "e0ea2990-fe1a-43d5-8998-e0bbbeb6ea8a"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OMOdLYt8AmK-sRrm2gPUMb7Nfp6pNRk3wcbgfU6puNk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sender": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+            "Subject": "={{ $('Gmail Trigger').item.json.subject }}",
+            "Message Snippet": "={{ $('Gmail Trigger').item.json.text }}",
+            "Date": "={{ new Date().toISOString() }}",
+            "ReplySuggestion": "={{(() => {\n  const raw = $json.output;\n  const cleaned = raw.replace(/```json|```/g, '').trim(); // Remove markdown block\n  const parsed = JSON.parse(cleaned);\n  return parsed.suggested_reply;\n})()}}\n",
+            "Label": "={{(() => {\n  const raw = $json.output;\n  const clean = raw.replace(/```json|```/g, '').trim(); // Remove markdown code block syntax\n  const parsed = JSON.parse(clean); // Convert to JSON\n  return parsed.category; // Return only the category (label)\n})()}}\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sender",
+              "displayName": "Sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subject",
+              "displayName": "Subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Label",
+              "displayName": "Label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message Snippet",
+              "displayName": "Message Snippet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ReplySuggestion",
+              "displayName": "ReplySuggestion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -2540,
+        -760
+      ],
+      "id": "e05ec2fa-dc47-43c4-b3b9-916bde99aa2d",
+      "name": "Email Backup",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bByc4BF4jkmdCYh3",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ (() => {\n  const raw = $json.output;\n  const cleaned = raw.replace(/```json|```/g, '').trim(); // Remove markdown syntax\n  const parsed = JSON.parse(cleaned);\n  return parsed.suggested_reply;\n})() }}\n",
+        "destinationKey": "reply_email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        -380
+      ],
+      "id": "4efa3dd0-b538-4214-b5a2-af96e0026d1d",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "content": "\n# 📩 Gmail Trigger \n### Polls Gmail every 1 min. Triggers on new incoming email.  \n### Credentials must be connected correctly.\n",
+        "height": 680,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2260,
+        -920
+      ],
+      "id": "f042cb7b-ba5d-4188-84b8-8927391d4a84",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You're a smart and professional email assistant.\n\nYou have received the following email:\n\nSubject: {{ $('Gmail Trigger').item.json.subject }}\n\nBody: {{ $('Gmail Trigger').item.json.text }}\n\nSender: {{ $('Gmail Trigger').item.json.from.value[0].address }}\n\nYour tasks:\n\n1. Classify this email into one of the following categories (with emoji):\n- 👤 Client  \n- 🚀 Lead  \n- 🧍 Personal  \n- 🧾 Invoice  \n- 💼 Job Alert  \n- 👥 Team  \n- 🚫 Spam  \n- 🛍️ Promotion  \n- 📰 Newsletter  \n- 📦 Other  \n\n2. Identify the **intent** of the sender (in 1–2 words only).\n\n3. If the category is **👤 Client**, **🚀 Lead**, or **👥 Team**, then:\n   - Write a short (1–2 sentence), polite, professional reply that feels natural.\n     - 👤 Client → Use a formal tone.\n     - 🚀 Lead → Use an enthusiastic tone.\n     - 👥 Team → Use a collegial, friendly tone.\n\nIf it's not one of these categories, return `\"suggested_reply\": null`.\n\n**Format your response strictly in this JSON structure:**\n\n```json\n{\n  \"category\": \"👤 Client\",\n  \"intent\": \"Follow-up request\",\n  \"suggested_reply\": \"Thank you for your message. I've noted your request and will respond shortly.\"\n}\n",
+        "options": {
+          "systemMessage": "=You are an intelligent and professional email assistant.\n\nEach time, you will receive a new email's subject, body, and sender address.\n\nYour responsibilities are:\n\n1. **Classify the email** into one of the following labeled categories (include emojis):\n   - 👤 Client  \n   - 🚀 Lead  \n   - 🧍 Personal  \n   - 🧾 Invoice  \n   - 💼 Job Alert  \n   - 👥 Team  \n   - 🚫 Spam  \n   - 🛍️ Promotion  \n   - 📰 Newsletter  \n   - 📦 Other  \n\n2. **Identify the sender’s intent** using only 1–2 words.\n\n3. **If the email is from one of these categories**: 👤 Client, 🚀 Lead, 👥 Team  \n   → Compose a **short (1–2 sentence)** reply in a natural and relevant tone:  \n   - 👤 Client → Formal  \n   - 🚀 Lead → Excited/Enthusiastic  \n   - 👥 Team → Friendly/Collegial  \n\nIf the email is not from these categories, return `\"suggested_reply\": null`.\n\nOnly respond in this strict JSON format:\n```json\n{\n  \"category\": \"🚀 Lead\",\n  \"intent\": \"Product inquiry\",\n  \"suggested_reply\": \"Thanks for reaching out! I'd love to discuss how we can assist. When would be a good time to connect?\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -1380,
+        -560
+      ],
+      "id": "d7d46bca-16c4-4a54-8718-f1d063587add",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1380,
+        -400
+      ],
+      "id": "ab475aea-e547-4935-baac-a9fb0907bdc2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "OXpvFZVYDmemmR2m",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n# 🛠️ Clean Email Fields  \n### Extracts Subject, Snippet & Sender (email only)  \n### → Prepares clean input for AI Agent.\n\n",
+        "height": 680,
+        "width": 340,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        -920
+      ],
+      "id": "aab33308-1df3-4365-a80c-cf27d0d8f15b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "\n# 🤖 AI Classification  \n### 1. Categorizes email (e.g., 🚀 Lead)  \n### 2. Detects intent  \n### 3. Suggests short reply (in JSON format)\n\n\n📎 Get your key from: [here](https://platform.openai.com/account/api-keys)\n [📺 Watch API Setup Tutorial](https://www.youtube.com/watch?v=9uJS6kvfNDE&t=18s)\n\n\n⚠️ If you're new to OpenAI, you may need to add at least $5 credit to use the API:\n [🔗 OpenAI Billing Page](https://platform.openai.com/settings/organization/billing/overview)",
+        "height": 700,
+        "width": 420,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1460,
+        -940
+      ],
+      "id": "18df4c86-41b0-4a56-9871-7d06b427b95b",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "\n## 📊 Google Sheet Logging  \n### Appends email details + AI's label & reply to Sheet.  \n→ Uses `category` & `suggested_reply` from AI JSON.\n\n## Follow this video to Setup Credential in Google Sheets:\n[Watch Google Sheets Credential Setup](https://youtu.be/SCPbYzITRxw&t=7s) \n\n\n## Google Sheet Node settings:\nIMPORTANT ⚠ After adding credentials, open this Google sheet and go to **File** > **Make a copy** : \n📄 Google Sheet: [sheet](https://docs.google.com/spreadsheets/d/1zFbvpwLAQyiHiDJjH4rNFVWryFzOGNF5K_PqfrFxwQM/) \n\nNow copy the URL of your new Google Sheet and paste it into the **“Document URL”** field in the Email Backup node. \n\n📺[ Watch Google Sheet Setup ](https://youtu.be/tvYuUA_vLtk?si=qd-0i_34cnL7QK0H&t=4)\n\n\n\n",
+        "height": 440,
+        "width": 1240,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3540,
+        -920
+      ],
+      "id": "90127083-6e31-46cb-ad8c-3da401665b17",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "# ✉️ Draft Email Creation  \n### Only for 🚀 Lead, 👤 Client, 👥 Team  \n### → Converts AI reply to HTML  \n### → Sets raw headers  \n### → Encodes and creates Gmail draft\n",
+        "height": 1500,
+        "width": 540,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -980,
+        -920
+      ],
+      "id": "343f136a-17bc-4c11-8e51-190ba8420475",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "# 🏷️ Gmail Label Flow\n\n## This section handles Gmail label management automatically.\n\n### ▶️ Steps Explained:\n1. **Gmail Node (Get Labels)**:\n   → Fetches all existing Gmail labels for this account.\n\n### 2. **Wait Node**:\n   → Introduced to ensure the labels list is completely retrieved before processing.\n\n### 3. **Code Node (Normalize)**:\n   → Compares existing labels with the AI-suggested label (from Email Backup).\n   → Uses normalization (e.g., lowercased, no spaces) to ensure accurate match.\n   → Outputs `labelExists: true/false`.\n\n### 4. **IF Node**:\n   → If label doesn’t exist (`labelExists === false`) → it goes to Create Label.\n   → If it already exists → it jumps directly to Add A Label.\n\n### 5. **Create Label Node**:\n   → Creates a new label using the name suggested by AI (e.g., 🚀 Lead).\n\n### 6. **Add Label / Add A Label**:\n   → Attaches the label to the email thread using `threadId` from Gmail Trigger.\n\n🧠 Why this matters?\n→ Ensures all emails are tagged with correct AI category, even if it didn't exist before.\n→ Keeps Gmail organized automatically.\n",
+        "height": 1040,
+        "width": 1240,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -3560,
+        -440
+      ],
+      "id": "9f9c82bc-d328-4c73-ad11-8383793d0fa8",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $json.Label }}",
+        "options": {
+          "labelListVisibility": "labelShow",
+          "messageListVisibility": "show"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2680,
+        220
+      ],
+      "id": "1357c4c3-4645-4835-8ac1-2c74d7b1dabe",
+      "name": "Create Label",
+      "webhookId": "747fcc0b-589f-49e7-bdeb-7ce9dece6058",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "addLabels",
+        "threadId": "={{ $('Gmail Trigger').first().json.threadId }}",
+        "labelIds": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2460,
+        220
+      ],
+      "id": "8fc3f1f4-7475-4c28-8cee-20a391c27ee3",
+      "name": "Add Label (New)",
+      "webhookId": "fc3109c8-8c41-4bb5-b59b-9174a0ea4fda",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "thread",
+        "operation": "addLabels",
+        "threadId": "={{ $('Gmail Trigger').first().json.threadId }}",
+        "labelIds": "={{ $json.id || $('Check or Create Label').first().json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2680,
+        400
+      ],
+      "id": "756376e6-1171-4009-8fc8-07c71adbb479",
+      "name": "Add Label (Existing)",
+      "webhookId": "fc3109c8-8c41-4bb5-b59b-9174a0ea4fda",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const labelName = $('Email Backup').first().json.Label || \"DefaultLabel\";\n\nconst normalize = str => str.normalize(\"NFKD\").replace(/\\s+/g, '').toLowerCase();\n\nconst target = normalize(labelName);\n\nconst match = $input.all().find(item => normalize(item.json.name) === target);\n\nif (match) {\n  return [{ json: { labelExists: true, id: match.json.id, Label: match.json.name } }];\n} else {\n  return [{ json: { labelExists: false, Label: labelName } }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2640,
+        20
+      ],
+      "id": "8b58da0b-7843-448c-9ffa-041f1e6c0f18",
+      "name": "Check or Create Label"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0ccaaa8c-86a2-4386-a694-7ff06e3ffbd0",
+              "leftValue": "={{ ($json.labelExists === false).toString() }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2920,
+        220
+      ],
+      "id": "91e6d8ff-fb55-483a-99f9-4f4be303f5a4",
+      "name": "Label Exists?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a140063c-4638-4ade-a362-9404464a8c18",
+              "name": "raw",
+              "value": "=To: {{ $('Gmail Trigger').item.json.from.value[0].address }}\nSubject: {{ $('Gmail Trigger').item.json.subject }}\nIn-Reply-To: {{ $('Gmail Trigger').item.json.messageId }}\nReferences: {{ $('Gmail Trigger').item.json.messageId }}\nContent-Type: text/html; charset=\"utf-8\"\n\n{{ $json.reply_email }}\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -860,
+        -220
+      ],
+      "id": "7f8c187a-769f-4e51-9a74-f2d6016d3840",
+      "name": "Prepare Email Draft"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawEmail = $json.raw;\nconst encoded = Buffer.from(rawEmail).toString('base64');\n\nreturn [{ json: { encoded } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -840,
+        -20
+      ],
+      "id": "709308bc-af76-40fa-826d-df3941b11a46",
+      "name": "Encode Email to Base64"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/gmail/v1/users/me/drafts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gmailOAuth2",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"message\":{\"raw\":\"{{ $json.encoded }}\", \"threadId\": \"{{ $('Gmail Trigger').item.json.threadId }}\"}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -840,
+        160
+      ],
+      "id": "ea896adb-83e6-4c20-824b-9b2bbf38919a",
+      "name": "Create Gmail Draft",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "421bf282-784c-421a-b44c-db0c5f2de951",
+              "name": "Subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "f0a8bafd-cfc8-438b-bc17-e9575a6db202",
+              "name": "snippet",
+              "value": "={{ $json.snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "fceae704-90f3-4054-bd58-9dbe90bde338",
+              "name": "From",
+              "value": "={{ $json.From.match(/<(.+?)>/)?.[1] || $json.From }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1720,
+        -560
+      ],
+      "id": "ae6e9de2-c35f-4647-8fde-8a361b29c1a9",
+      "name": "Extract Email Details"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9037df43-2394-4afe-a595-b7d4da529f39",
+              "leftValue": "={{ (['👤 Client', '🚀 Lead', '👥 Team'].includes(JSON.parse($json.output.replace(/```json|```/g, '').trim()).category)).toString() }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        -560
+      ],
+      "id": "8af639c5-457c-4653-8f4d-272f1a75b2fc",
+      "name": "Send Reply?"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -2660,
+        -340
+      ],
+      "id": "b4a272ac-c9dc-4227-8976-a0f133400efd",
+      "name": "Fetch Gmail Labels",
+      "webhookId": "a08e58a5-e000-473b-aef7-25cffb63109c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nBfLbwci6nQiMPsv",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Check or Create Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Backup": {
+      "main": [
+        [
+          {
+            "node": "Fetch Gmail Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Email Backup",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Label": {
+      "main": [
+        [
+          {
+            "node": "Add Label (New)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Label (New)": {
+      "main": [
+        []
+      ]
+    },
+    "Add Label (Existing)": {
+      "main": [
+        []
+      ]
+    },
+    "Check or Create Label": {
+      "main": [
+        [
+          {
+            "node": "Label Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Exists?": {
+      "main": [
+        [
+          {
+            "node": "Create Label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Label (Existing)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Draft": {
+      "main": [
+        [
+          {
+            "node": "Encode Email to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encode Email to Base64": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Details": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply?": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Gmail Labels": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e210f172-ff02-49b4-9bb7-426fdae5b8a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9c18fe067cb5cdc862034c1acdd4e996c5a49bce0259ee35ed45675e82ea0c7"
+  },
+  "id": "vHghDMHCzFBYPrHq",
+  "tags": [
+    {
+      "createdAt": "2025-05-22T12:17:36.770Z",
+      "updatedAt": "2025-05-22T12:17:36.770Z",
+      "id": "O6QgqeIbwgmmy7Ve",
+      "name": "📝 Templates"
+    }
+  ]
+}
